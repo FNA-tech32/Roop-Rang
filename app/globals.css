@@ -1,0 +1,119 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-montserrat);
+  --font-serif: var(--font-oranienbaum);
+  --color-primary: #d4af37;
+  --color-primary-dark: #aa820a;
+  --color-secondary: #0d090a;
+  --color-tertiary: #b8860b;
+
+  --color-text: #f5f0f2;
+  --color-text-dark: #0d090a;
+  --color-text-muted: #a3969a;
+
+  --color-background: #0d090a;
+  --color-surface: #181214;
+  --color-surface-soft: #261e21;
+  --color-surface-light: #faf7f2;
+
+  --color-border: #4a383e;
+  --color-border-light: #2d2226;
+
+  --color-accent: #e0115f;
+  --color-accent-dark: #9b0b40;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 120px;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-montserrat), sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: var(--color-primary);
+  color: var(--color-secondary);
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  a:active,
+  button:active {
+    transform: none !important;
+  }
+}
+
+:root {
+  --color-primary: #d4af37;
+  --color-primary-dark: #a08020;
+  --color-secondary: #0d090a;
+  --color-tertiary: #c59b27;
+  --color-text: #f5f0f2;
+  --color-text-dark: #0d090a;
+  --color-text-muted: #a3969a;
+  --color-background: #0d090a;
+  --color-surface: #181214;
+  --color-surface-soft: #261e21;
+  --color-surface-light: #faf7f2;
+  --color-border: #4a383e;
+  --color-border-light: #2d2226;
+  --color-accent: #c72c41;
+  --color-accent-dark: #8c1c2b;
+  --font-display: var(--font-oranienbaum);
+  --font-body: var(--font-montserrat);
+  --content-max-width: 1400px;
+  --page-gutter: 4rem;
+  --section-spacing: 6rem;
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.font-oranienbaum,
+.font-bodoni {
+  font-family: var(--font-oranienbaum), serif;
+}
+
+.font-montserrat {
+  font-family: var(--font-montserrat), sans-serif;
+}

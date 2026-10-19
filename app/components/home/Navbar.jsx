@@ -1,0 +1,263 @@
+"use client";
+import React, { useEffect, useRef, useState } from "react";
+import { WhatsAppIcon } from "@/app/components/ui/WhatsAppIcon";
+import {
+  getPhoneUrl,
+  getWhatsAppBaseUrl,
+  getWhatsAppUrl,
+} from "@/app/lib/contact";
+const navLinks = [
+  { label: "Offers", href: "#promotions" },
+  { label: "Services", href: "#services-catalog" },
+  { label: "Gallery", href: "#gallery" },
+  { label: "Reviews", href: "#reviews" },
+  { label: "FAQ", href: "#faq" },
+  { label: "Location", href: "#location" },
+];
+
+export const Navbar = () => {
+  const [business, setBusiness] = useState(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const mobileMenuButtonRef = useRef(null);
+  const mobileMenuRef = useRef(null);
+
+  const closeMenu = () => {
+    setIsMobileMenuOpen(false);
+    mobileMenuButtonRef.current?.focus();
+  };
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const fetchBusiness = async () => {
+      try {
+        const response = await fetch("/api/business", {
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch business: ${response.status}`);
+        }
+
+        setBusiness(await response.json());
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          console.error("Failed to load business details:", error);
+        }
+      }
+    };
+
+    fetchBusiness();
+
+    return () => controller.abort();
+  }, []);
+  const bookingUrl = business
+    ? getWhatsAppUrl(business.whatsapp, business.bookingMessage)
+    : "";
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll(); // Initial check
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+
+    mobileMenuRef.current?.querySelector("a")?.focus();
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setIsMobileMenuOpen(false);
+        mobileMenuButtonRef.current?.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isMobileMenuOpen]);
+  if (!business) {
+    return null;
+  }
+  return (
+    <header
+      className={`sticky top-0 z-50 w-full max-w-full overflow-x-hidden antialiased transition-all duration-300 ease-out ${
+        isScrolled
+          ? "bg-[var(--color-surface-light)]/95 text-[var(--color-text-dark)] shadow-sm"
+          : "bg-black text-white"
+      }`}
+    >
+      {/* Top Utility Bar */}
+      <div
+        className={`hidden font-sans sm:block transition-colors duration-300 ${
+          isScrolled
+            ? "bg-[var(--color-secondary)] text-[var(--color-text)]"
+            : "bg-black text-white/80 border-b border-zinc-900"
+        }`}
+      >
+        <div className="mx-auto flex min-h-9 max-w-[1400px] items-center justify-between gap-4 px-6 text-[10px] font-medium tracking-[0.16em] uppercase sm:px-10 lg:px-16">
+          <div className="flex items-center gap-3">
+            <span
+              className={
+                isScrolled ? "text-[var(--color-text-muted)]" : "text-white/60"
+              }
+            >
+              {business.locationLabel}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-6">
+            <a
+              href={getPhoneUrl(business.phone) || undefined}
+              className={`whitespace-nowrap transition-colors duration-300 ease-out hover:text-[var(--color-primary)] ${
+                isScrolled ? "text-[var(--color-text)]" : "text-white"
+              }`}
+            >
+              Bookings: {business.phone}
+            </a>
+
+            <a
+              href={
+                business.whatsapp
+                  ? getWhatsAppBaseUrl(business.whatsapp) || undefined
+                  : undefined
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Contact ${business.name} on WhatsApp`}
+              className="inline-flex items-center gap-1.5 whitespace-nowrap text-[var(--color-primary)] transition-all duration-300 ease-out hover:opacity-80"
+            >
+              <WhatsAppIcon className="h-3.5 w-3.5 fill-current" />
+              <span>WhatsApp Inquiries</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Navigation */}
+      <nav
+        aria-label="Main navigation"
+        className="mx-auto flex min-h-[72px] w-full max-w-[1400px] items-center justify-between gap-4 overflow-x-hidden px-6 font-sans sm:px-10 lg:px-16"
+      >
+        {/* Brand Wordmark - Updated Subtitle to "& Studio" */}
+        <a
+          href="#top"
+          aria-label={`${business.name} home`}
+          className="group flex shrink-0 flex-col py-1 transition-all duration-300 ease-out hover:opacity-90"
+        >
+          <span
+            className={`block font-serif text-2xl font-normal leading-none tracking-tight sm:text-3xl transition-colors duration-300 ${
+              isScrolled ? "text-[var(--color-text-dark)]" : "text-white"
+            }`}
+          >
+            Roop Rang
+          </span>
+          <span
+            className={`mt-1 block text-[9px] font-bold uppercase tracking-[0.26em] transition-colors duration-300 ${
+              isScrolled
+                ? "text-[var(--color-primary-dark)]"
+                : "text-[var(--color-primary)]"
+            }`}
+          >
+            Beauty Studio
+          </span>
+        </a>
+
+        {/* Desktop Nav Links */}
+        <div className="hidden flex-1 items-center justify-center gap-6 lg:flex lg:gap-8">
+          {navLinks.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              className={`group relative whitespace-nowrap py-1 text-[11px] font-bold uppercase tracking-[0.18em] transition-colors duration-300 ease-out ${
+                isScrolled
+                  ? "text-[var(--color-text-dark)] hover:text-[var(--color-primary-dark)]"
+                  : "text-white/90 hover:text-[var(--color-primary)]"
+              }`}
+            >
+              <span>{link.label}</span>
+            </a>
+          ))}
+        </div>
+
+        {/* Action Button */}
+        <a
+          href={bookingUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`hidden min-h-[48px] shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full px-6 py-3 text-xs font-bold uppercase tracking-wider transition-all duration-300 hover:bg-[var(--color-primary)]  hover:text-[var(--color-secondary)] ease-out active:scale-95 sm:inline-flex ${
+            isScrolled
+              ? "bg-[var(--color-secondary)] text-[var(--color-text)] hover:bg-[var(--color-primary)]"
+              : "bg-white text-black"
+          }`}
+        >
+          <span>Book Appointment</span>
+        </a>
+
+        {/* Mobile Menu Button */}
+        <button
+          ref={mobileMenuButtonRef}
+          type="button"
+          onClick={() => {
+            if (isMobileMenuOpen) {
+              mobileMenuButtonRef.current?.focus();
+            }
+            setIsMobileMenuOpen((prev) => !prev);
+          }}
+          className={`flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center transition-all duration-300 ease-out focus:outline-none active:scale-95 lg:hidden ${
+            isScrolled ? "text-[var(--color-text-dark)]" : "text-white"
+          }`}
+          aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={isMobileMenuOpen}
+          aria-controls="mobile-navigation"
+        >
+          <span className="material-symbols-outlined text-[24px]">
+            {isMobileMenuOpen ? "close" : "menu"}
+          </span>
+        </button>
+      </nav>
+
+      {/* Mobile Navigation Panel */}
+      <div
+        id="mobile-navigation"
+        ref={mobileMenuRef}
+        hidden={!isMobileMenuOpen}
+        className="border-t border-[var(--color-border-light)]/40 bg-[var(--color-surface-light)] px-6 py-6 font-sans text-[var(--color-text-dark)] lg:hidden"
+      >
+        <div className="flex flex-col space-y-3">
+          {navLinks.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              onClick={closeMenu}
+              className="flex cursor-pointer items-center justify-between py-2 text-xs font-bold uppercase tracking-[0.16em] text-[var(--color-text-dark)] transition-all duration-300 ease-out hover:text-[var(--color-secondary)]"
+            >
+              <span>{link.label}</span>
+              <span className="material-symbols-outlined text-[14px] text-[var(--color-text-dark)]">
+                arrow_forward
+              </span>
+            </a>
+          ))}
+
+          <div className="pt-4">
+            <a
+              href={bookingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={closeMenu}
+              className="flex min-h-[48px] w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--color-secondary)] px-6 py-3 text-xs font-bold uppercase tracking-wider text-[var(--color-text)] transition-all duration-300 ease-out hover:bg-[var(--color-primary)] hover:text-[var(--color-secondary)] active:scale-95"
+            >
+              <WhatsAppIcon className="h-4 w-4 fill-current" />
+              <span>Book via WhatsApp</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+};
